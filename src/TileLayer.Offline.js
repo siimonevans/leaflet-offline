@@ -4,7 +4,7 @@
         define(['leaflet'], factory);
     } else if (typeof exports === 'object' && module.exports) {
         module.exports = factory(require('leaflet'));
-    } else {
+    } else if (typeof window !== 'undefined') {
         if (typeof window.L === 'undefined') {
             throw 'Leaflet must be loaded first!';
         }

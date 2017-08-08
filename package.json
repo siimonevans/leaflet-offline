@@ -2,6 +2,7 @@
   "name": "leaflet-offline-layer",
   "version": "1.0.0",
   "description": "A custom Leaflet Layer that downloads map tiles.",
+  "main": "src/leaflet-offline-layer.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/robertomlsoares/leaflet-offline-layer.git"
