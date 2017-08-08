@@ -1,2 +1,2 @@
 # leaflet-offline-layer
-A custom Layer for Leaflet that downloads map tiles.
+A custom Leaflet Layer that downloads map tiles.

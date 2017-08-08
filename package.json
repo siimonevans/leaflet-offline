@@ -1,0 +1,24 @@
+{
+  "name": "leaflet-offline-layer",
+  "version": "1.0.0",
+  "description": "A custom Leaflet Layer that downloads map tiles.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertomlsoares/leaflet-offline-layer.git"
+  },
+  "keywords": [
+    "leaflet",
+    "offline",
+    "map",
+    "download"
+  ],
+  "author": "Roberto Soares",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/robertomlsoares/leaflet-offline-layer/issues"
+  },
+  "homepage": "https://github.com/robertomlsoares/leaflet-offline-layer#readme",
+  "dependencies": {
+    "leaflet": "^1.1.0"
+  }
+}
