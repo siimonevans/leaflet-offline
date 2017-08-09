@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var connect = require('gulp-connect');
 var pump = require('pump');
 var del = require('del');
 
@@ -30,6 +31,10 @@ gulp.task('minify', ['clean', 'js'], function (cb) {
         uglify(),
         gulp.dest('dist')
     ], cb);
+});
+
+gulp.task('demo', ['clean', 'js'], function () {
+    connect.server();
 });
 
 gulp.task('release', ['minify']);

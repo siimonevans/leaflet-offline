@@ -16,9 +16,9 @@
             this._url = url;
             this._tilesDb = tilesDb;
 
-            options = Util.setOptions(this, options);
+            options = L.Util.setOptions(this, options);
 
-            if (options.detectRetina && Browser.retina && options.maxZoom > 0) {
+            if (options.detectRetina && L.Browser.retina && options.maxZoom > 0) {
                 options.tileSize = Math.floor(options.tileSize / 2);
 
                 if (!options.zoomReverse) {
@@ -36,7 +36,7 @@
                 options.subdomains = options.subdomains.split('');
             }
 
-            if (!Browser.android) {
+            if (!L.Browser.android) {
                 this.on('tileunload', this._onTileRemove);
             }
         },
@@ -81,7 +81,6 @@
         },
 
         getTileUrls: function (bounds, zoom) {
-            var url = null;
             var tiles = [];
             var originalurl = this._url;
 
@@ -96,7 +95,7 @@
             for (var i = tileBounds.min.x; i <= tileBounds.max.x; i++) {
                 for (var j = tileBounds.min.y; j <= tileBounds.max.y; j++) {
                     var tilePoint = new L.Point(i, j);
-                    url = L.TileLayer.prototype.getTileUrl.call(this, tilePoint);
+                    var url = L.TileLayer.prototype.getTileUrl.call(this, tilePoint);
                     tiles.push({
                         'key': this._getStorageKey(url),
                         'url': url,
@@ -105,13 +104,9 @@
             }
 
             // Restore the overwritten url.
-            this.setUrl(origurl, true);
+            this.setUrl(originalurl, true);
 
             return tiles;
-        },
-
-        getSubDomainsLength: function () {
-            return this.options.subdomains.length;
         },
 
         _getStorageKey: function (url) {
