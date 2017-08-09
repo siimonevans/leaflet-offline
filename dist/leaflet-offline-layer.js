@@ -81,7 +81,6 @@
         },
 
         getTileUrls: function (bounds, zoom) {
-            var url = null;
             var tiles = [];
             var originalurl = this._url;
 
@@ -96,7 +95,7 @@
             for (var i = tileBounds.min.x; i <= tileBounds.max.x; i++) {
                 for (var j = tileBounds.min.y; j <= tileBounds.max.y; j++) {
                     var tilePoint = new L.Point(i, j);
-                    url = L.TileLayer.prototype.getTileUrl.call(this, tilePoint);
+                    var url = L.TileLayer.prototype.getTileUrl.call(this, tilePoint);
                     tiles.push({
                         'key': this._getStorageKey(url),
                         'url': url,
@@ -108,10 +107,6 @@
             this.setUrl(originalurl, true);
 
             return tiles;
-        },
-
-        getSubDomainsLength: function () {
-            return this.options.subdomains.length;
         },
 
         _getStorageKey: function (url) {
@@ -240,7 +235,6 @@
                     requests[i].responseType = 'blob';
                     requests[i].onreadystatechange = function () {
                         if (requests[i].readyState === XMLHttpRequest.DONE && requests[i].status === 200) {
-                            self._baseLayer.fire('offline:tile-downloaded');
                             self._saveTile(tileUrl.key, requests[i].response);
                         }
                     };
