@@ -1,0 +1,35 @@
+var gulp = require('gulp');
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
+var pump = require('pump');
+var del = require('del');
+
+var jsFiles = [
+    'src/TileLayer.Offline.js',
+    'src/Control.Offline.js',
+    'src/leaflet-offline-layer.js'
+];
+
+gulp.task('clean', function () {
+    del.sync(['dist/**/*']);
+});
+
+gulp.task('js', function (cb) {
+    pump([
+        gulp.src(jsFiles),
+        concat('leaflet-offline-layer.js'),
+        gulp.dest('dist')
+    ], cb);
+});
+
+gulp.task('minify', ['clean', 'js'], function (cb) {
+    pump([
+        gulp.src(['dist/leaflet-offline-layer.js']),
+        rename({ suffix: '.min' }),
+        uglify(),
+        gulp.dest('dist')
+    ], cb);
+});
+
+gulp.task('release', ['minify']);

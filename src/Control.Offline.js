@@ -113,10 +113,10 @@
             }
         },
 
-        _saveTile: function (tileUrl, blob) {
+        _saveTile: function (tileUrlKey, blob) {
             var self = this;
 
-            this._tilesDb.setItem(tileUrl, blob).then(function () {
+            this._tilesDb.setItem(tileUrlKey, blob).then(function () {
                 self._baseLayer.fire('offline:tile-saved');
             }).catch(function (err) {
                 self._baseLayer.fire('offline:save-tile-error', {
