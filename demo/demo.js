@@ -5,14 +5,55 @@ var tilesDb = {
         return localforage.getItem(key);
     },
 
-    setItem: function (key, value) {
-        return this._removeItem(key).then(function () {
-            return localforage.setItem(key, value);
-        });
+    saveTiles: function (tileUrls) {
+        var self = this;
+
+        var promises = [];
+
+        for (var i = 0; i < tileUrls.length; i++) {
+            var tileUrl = tileUrls[i];
+
+            (function (i, tileUrl) {
+                promises[i] = new Promise(function (resolve, reject) {
+                    var request = new XMLHttpRequest();
+                    request.open('GET', tileUrl.url, true);
+                    request.responseType = 'blob';
+                    request.onreadystatechange = function () {
+                        if (request.readyState === XMLHttpRequest.DONE) {
+                            if (request.status === 200) {
+                                resolve(self._saveTile(tileUrl.key, request.response));
+                            } else {
+                                reject({
+                                    status: request.status,
+                                    statusText: request.statusText
+                                });
+                            }
+                        }
+                    };
+                    request.send();
+                });
+            })(i, tileUrl);
+        }
+
+        return Promise.all(promises);
+    },
+
+    size: function () {
+        return localforage.length();
     },
 
     clear: function () {
         return localforage.clear();
+    },
+
+    _saveTile: function (tileUrlKey, blob) {
+        return this._setItem(tileUrlKey, blob);
+    },
+
+    _setItem: function (key, value) {
+        return this._removeItem(key).then(function () {
+            return localforage.setItem(key, value);
+        });
     },
 
     _removeItem: function (key) {
@@ -21,8 +62,6 @@ var tilesDb = {
 };
 
 var map = L.map('map-id');
-var nTilesToSave = 0;
-var saveTilesProgress = 0;
 var offlineLayer = L.tileLayer.offline('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', tilesDb, {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     subdomains: 'abc',
@@ -33,13 +72,13 @@ var offlineLayer = L.tileLayer.offline('http://{s}.tile.openstreetmap.org/{z}/{x
 var offlineControl = L.control.offline(offlineLayer, tilesDb, {
     saveButtonHtml: '<i class="fa fa-download" aria-hidden="true"></i>',
     removeButtonHtml: '<i class="fa fa-trash" aria-hidden="true"></i>',
-    confirmSavingCallback: function (nTiles, continueSaveTiles) {
-        if (window.confirm('Save ' + nTiles + '?')) {
+    confirmSavingCallback: function (nTilesToSave, continueSaveTiles) {
+        if (window.confirm('Save ' + nTilesToSave + '?')) {
             continueSaveTiles();
         }
     },
-    confirmRemovalCallback: function (continueRemoveTiles) {
-        if (window.confirm('Remove all the tiles?')) {
+    confirmRemovalCallback: function (nTilesToRemove, continueRemoveTiles) {
+        if (window.confirm('Remove ' + nTilesToRemove + '?')) {
             continueRemoveTiles();
         }
     },
@@ -55,28 +94,31 @@ offlineLayer.on('offline:below-min-zoom-error', function () {
 });
 
 offlineLayer.on('offline:save-start', function (data) {
-    nTilesToSave = data.nTilesToSave;
-    saveTilesProgress = 0;
+    console.log('Saving ' + data.nTilesToSave + ' tiles.');
 });
 
-offlineLayer.on('offline:tile-saved', function () {
-    saveTilesProgress++;
-
-    if (saveTilesProgress === nTilesToSave) {
-        alert('All the tiles were saved.');
-    }
+offlineLayer.on('offline:save-end', function (data) {
+    alert('All the tiles were saved.');
 });
 
-offlineLayer.on('offline:save-tile-error', function (err) {
-    console.error('Error when saving tile: ' + err);
+offlineLayer.on('offline:save-error', function (err) {
+    console.error('Error when saving tiles: ' + err);
 });
 
-offlineLayer.on('offline:tiles-removed', function () {
+offlineLayer.on('offline:remove-start', function (data) {
+    console.log('Removing ' + data.nTilesToRemove + ' tiles.');
+});
+
+offlineLayer.on('offline:remove-end', function () {
     alert('All the tiles were removed.');
 });
 
-offlineLayer.on('offline:remove-tiles-error', function (err) {
+offlineLayer.on('offline:remove-error', function (err) {
     console.error('Error when removing tiles: ' + err);
+});
+
+offlineLayer.on('offline:size-error', function (err) {
+    console.error('Error when getting the size of the database: ' + err);
 });
 
 map.setView({

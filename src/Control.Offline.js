@@ -83,7 +83,14 @@
                 self._baseLayer.fire('offline:save-start', {
                     nTilesToSave: tileUrls.length
                 });
-                self._downloadTiles(tileUrls);
+
+                self._tilesDb.saveTiles(tileUrls).then(function () {
+                    self._baseLayer.fire('offline:save-end');
+                }).catch(function (err) {
+                    self._baseLayer.fire('offline:save-error', {
+                        error: err
+                    });
+                });
             };
 
             if (this.options.confirmSavingCallback) {
@@ -93,58 +100,38 @@
             }
         },
 
-        _downloadTiles: function (tileUrls) {
-            var self = this;
-
-            var requests = [];
-
-            for (var i = 0; i < tileUrls.length; i++) {
-                var tileUrl = tileUrls[i];
-
-                (function (i, tileUrl) {
-                    requests[i] = new XMLHttpRequest();
-                    requests[i].open('GET', tileUrl.url, true);
-                    requests[i].responseType = 'blob';
-                    requests[i].onreadystatechange = function () {
-                        if (requests[i].readyState === XMLHttpRequest.DONE && requests[i].status === 200) {
-                            self._saveTile(tileUrl.key, requests[i].response);
-                        }
-                    };
-                    requests[i].send();
-                })(i, tileUrl);
-            }
-        },
-
-        _saveTile: function (tileUrlKey, blob) {
-            var self = this;
-
-            this._tilesDb.setItem(tileUrlKey, blob).then(function () {
-                self._baseLayer.fire('offline:tile-saved');
-            }).catch(function (err) {
-                self._baseLayer.fire('offline:save-tile-error', {
-                    error: err
-                });
-            });
-        },
-
         _removeTiles: function () {
             var self = this;
 
+            var dbSize = null;
+
             var continueRemoveTiles = function () {
+                self._baseLayer.fire('offline:remove-start', {
+                    nTilesToRemove: dbSize
+                });
+
                 self._tilesDb.clear().then(function () {
-                    self._baseLayer.fire('offline:tiles-removed');
+                    self._baseLayer.fire('offline:remove-end');
                 }).catch(function (err) {
-                    self._baseLayer.fire('offline:remove-tiles-error', {
+                    self._baseLayer.fire('offline:remove-error', {
                         error: err
                     });
                 });
             };
 
-            if (this.options.confirmRemovalCallback) {
-                this.options.confirmRemovalCallback(continueRemoveTiles);
-            } else {
-                continueRemoveTiles();
-            }
+            this._tilesDb.size().then(function (size) {
+                dbSize = size;
+
+                if (self.options.confirmRemovalCallback) {
+                    self.options.confirmRemovalCallback(size, continueRemoveTiles);
+                } else {
+                    continueRemoveTiles();
+                }
+            }).catch(function (err) {
+                self._baseLayer.fire('offline:size-error', {
+                    error: err
+                });
+            });
         }
     });
 

@@ -96,6 +96,7 @@
                 for (var j = tileBounds.min.y; j <= tileBounds.max.y; j++) {
                     var tilePoint = new L.Point(i, j);
                     var url = L.TileLayer.prototype.getTileUrl.call(this, tilePoint);
+
                     tiles.push({
                         'key': this._getStorageKey(url),
                         'url': url,
