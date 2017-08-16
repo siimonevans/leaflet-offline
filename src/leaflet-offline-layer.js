@@ -1,3 +1,5 @@
+'use strict';
+
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         define(['./TileLayer.Offline', './Control.Offline'], factory);

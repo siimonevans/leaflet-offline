@@ -1,3 +1,5 @@
+'use strict';
+
 (function (factory, window) {
 
     if (typeof define === 'function' && define.amd) {
@@ -11,6 +13,10 @@
         factory(window.L);
     }
 }(function (L) {
+
+    /**
+     * The Offline Control to be used together with the Offline Layer.
+     */
     L.Control.Offline = L.Control.extend({
         options: {
             position: 'topleft',
@@ -24,6 +30,16 @@
             confirmRemovalCallback: null
         },
 
+        /**
+         * Constructor of the control.
+         * 
+         * @param {Object} baseLayer The Offline Layer to work together with the
+         * control.
+         * @param {Object} tilesDb An object that implements a certain interface
+         * so it's able to serve as the database layer to save and remove the tiles.
+         * @param {Object} options This is the same parameter as the Leaflet
+         * Control, but it has some additions. Check the README for more.
+         */
         initialize: function (baseLayer, tilesDb, options) {
             this._baseLayer = baseLayer;
             this._tilesDb = tilesDb;
@@ -31,6 +47,13 @@
             L.Util.setOptions(this, options);
         },
 
+        /**
+         * Creates the container DOM element for the control and add listeners
+         * on relevant map events.
+         * 
+         * @param {Object} map The Leaflet map.
+         * @returns {HTMLElement} The DOM element for the control.
+         */
         onAdd: function (map) {
             var container = L.DomUtil.create('div', 'leaflet-control-offline leaflet-bar');
 
@@ -40,6 +63,19 @@
             return container;
         },
 
+        /**
+         * Auxiliary method that creates a button DOM element.
+         * 
+         * @param {String} html The HTML that will be used inside the button
+         * DOM element.
+         * @param {String} title The title of the button DOM element.
+         * @param {String} className The class name for the button DOM element.
+         * @param {HTMLElement} container The container DOM element for the
+         * buttons.
+         * @param {Function} fn A function that will be executed when the button
+         * is clicked.
+         * @returns {HTMLElement} A button DOM element.
+         */
         _createButton: function (html, title, className, container, fn) {
             var link = L.DomUtil.create('a', className, container);
             link.innerHTML = html;
@@ -54,6 +90,9 @@
             return link;
         },
 
+        /**
+         * The function executed when the button to save tiles is clicked.
+         */
         _saveTiles: function () {
             var self = this;
 
@@ -100,15 +139,14 @@
             }
         },
 
+        /**
+         * The function executed when the button to remove tiles is clicked.
+         */
         _removeTiles: function () {
             var self = this;
 
-            var dbSize = null;
-
             var continueRemoveTiles = function () {
-                self._baseLayer.fire('offline:remove-start', {
-                    nTilesToRemove: dbSize
-                });
+                self._baseLayer.fire('offline:remove-start');
 
                 self._tilesDb.clear().then(function () {
                     self._baseLayer.fire('offline:remove-end');
@@ -119,22 +157,24 @@
                 });
             };
 
-            this._tilesDb.size().then(function (size) {
-                dbSize = size;
-
-                if (self.options.confirmRemovalCallback) {
-                    self.options.confirmRemovalCallback(size, continueRemoveTiles);
-                } else {
-                    continueRemoveTiles();
-                }
-            }).catch(function (err) {
-                self._baseLayer.fire('offline:size-error', {
-                    error: err
-                });
-            });
+            if (self.options.confirmRemovalCallback) {
+                self.options.confirmRemovalCallback(continueRemoveTiles);
+            } else {
+                continueRemoveTiles();
+            }
         }
     });
 
+    /**
+     * Factory function as suggested by the Leaflet team.
+     * 
+     * @param {Object} baseLayer The Offline Layer to work together with the
+     * control.
+     * @param {Object} tilesDb An object that implements a certain interface
+     * so it's able to serve as the database layer to save and remove the tiles.
+     * @param {Object} options This is the same parameter as the Leaflet
+     * Control, but it has some additions. Check the README for more.
+     */
     L.control.offline = function (baseLayer, tilesDb, options) {
         return new L.Control.Offline(baseLayer, tilesDb, options);
     };

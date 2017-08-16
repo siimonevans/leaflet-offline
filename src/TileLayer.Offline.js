@@ -1,3 +1,5 @@
+'use strict';
+
 (function (factory, window) {
 
     if (typeof define === 'function' && define.amd) {
@@ -11,7 +13,23 @@
         factory(window.L);
     }
 }(function (L) {
+
+    /**
+     * The Offline Layer should work in the same way as the Tile Layer does
+     * when there are no offline tile images saved.
+     */
     L.TileLayer.Offline = L.TileLayer.extend({
+
+        /**
+         * Constructor of the layer.
+         * 
+         * @param {String} url URL of the tile map provider.
+         * @param {Object} tilesDb An object that implements a certain interface
+         * so it's able to serve as the database layer to save and remove the tiles.
+         * @param {Object} options This is the same options parameter as the Leaflet
+         * Tile Layer, there are no additional parameters. Check their documentation
+         * for up-to-date information.
+         */
         initialize: function (url, tilesDb, options) {
             this._url = url;
             this._tilesDb = tilesDb;
@@ -41,6 +59,16 @@
             }
         },
 
+        /**
+         * Overrides the method from the Tile Layer. Loads a tile given its
+         * coordinates.
+         * 
+         * @param {Object} coords Coordinates of the tile.
+         * @param {Function} done A callback to be called when the tile has been
+         * loaded.
+         * @returns {HTMLElement} An <img> HTML element with the appropriate
+         * image URL.
+         */
         createTile: function (coords, done) {
             var tile = document.createElement('img');
 
@@ -64,6 +92,15 @@
             return tile;
         },
 
+        /**
+         * Overrides the method from the Tile Layer. Returns the URL for a tile
+         * given its coordinates. It tries to get the tile image offline first,
+         * then if it fails, it falls back to the original Tile Layer
+         * implementation.
+         * 
+         * @param {Object} coords Coordinates of the tile.
+         * @returns {String} The URL for a tile image.
+         */
         getTileUrl: function (coords) {
             var url = L.TileLayer.prototype.getTileUrl.call(this, coords);
             var dbStorageKey = this._getStorageKey(url);
@@ -80,11 +117,22 @@
             return resultPromise;
         },
 
+        /**
+         * Gets the URLs for all the tiles that are inside the given bounds.
+         * Every element of the result array is in this format:
+         * {key: <String>, url: <String>}. The key is the key used on the
+         * database layer to find the tile image offline. The URL is the
+         * location from where the tile image will be downloaded.
+         * 
+         * @param {Object} bounds The bounding box of the tiles.
+         * @param {Number} zoom The zoom level of the bounding box.
+         * @returns {Array} An array containing all the URLs inside the given
+         * bounds.
+         */
         getTileUrls: function (bounds, zoom) {
             var tiles = [];
             var originalurl = this._url;
 
-            // getTileUrl uses current zoom level, we want to overwrite it.
             this.setUrl(this._url.replace('{z}', zoom), true);
 
             var tileBounds = L.bounds(
@@ -104,12 +152,19 @@
                 }
             }
 
-            // Restore the overwritten url.
             this.setUrl(originalurl, true);
 
             return tiles;
         },
 
+        /**
+         * Determines the key that will be used on the database layer given
+         * a URL.
+         * 
+         * @param {String} url The URL of a tile image.
+         * @returns {String} The key that will be used on the database layer
+         * to find a tile image.
+         */
         _getStorageKey: function (url) {
             var key = null;
 
@@ -122,6 +177,16 @@
         },
     });
 
+    /**
+     * Factory function as suggested by the Leaflet team.
+     * 
+     * @param {String} url URL of the tile map provider.
+     * @param {Object} tilesDb An object that implements a certain interface
+     * so it's able to serve as the database layer to save and remove the tiles.
+     * @param {Object} options This is the same options parameter as the Leaflet
+     * Tile Layer, there are no additional parameters. Check their documentation
+     * for up-to-date information.
+     */
     L.tileLayer.offline = function (url, tilesDb, options) {
         return new L.TileLayer.Offline(url, tilesDb, options);
     };

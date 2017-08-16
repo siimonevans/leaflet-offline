@@ -38,19 +38,11 @@ var tilesDb = {
         return Promise.all(promises);
     },
 
-    size: function () {
-        return localforage.length();
-    },
-
     clear: function () {
         return localforage.clear();
     },
 
     _saveTile: function (tileUrlKey, blob) {
-        return this._setItem(tileUrlKey, blob);
-    },
-
-    _setItem: function (key, value) {
         return this._removeItem(key).then(function () {
             return localforage.setItem(key, value);
         });
@@ -77,8 +69,8 @@ var offlineControl = L.control.offline(offlineLayer, tilesDb, {
             continueSaveTiles();
         }
     },
-    confirmRemovalCallback: function (nTilesToRemove, continueRemoveTiles) {
-        if (window.confirm('Remove ' + nTilesToRemove + '?')) {
+    confirmRemovalCallback: function (continueRemoveTiles) {
+        if (window.confirm('Remove all the tiles?')) {
             continueRemoveTiles();
         }
     },
@@ -97,7 +89,7 @@ offlineLayer.on('offline:save-start', function (data) {
     console.log('Saving ' + data.nTilesToSave + ' tiles.');
 });
 
-offlineLayer.on('offline:save-end', function (data) {
+offlineLayer.on('offline:save-end', function () {
     alert('All the tiles were saved.');
 });
 
@@ -105,8 +97,8 @@ offlineLayer.on('offline:save-error', function (err) {
     console.error('Error when saving tiles: ' + err);
 });
 
-offlineLayer.on('offline:remove-start', function (data) {
-    console.log('Removing ' + data.nTilesToRemove + ' tiles.');
+offlineLayer.on('offline:remove-start', function () {
+    console.log('Removing tiles.');
 });
 
 offlineLayer.on('offline:remove-end', function () {
@@ -115,10 +107,6 @@ offlineLayer.on('offline:remove-end', function () {
 
 offlineLayer.on('offline:remove-error', function (err) {
     console.error('Error when removing tiles: ' + err);
-});
-
-offlineLayer.on('offline:size-error', function (err) {
-    console.error('Error when getting the size of the database: ' + err);
 });
 
 map.setView({
