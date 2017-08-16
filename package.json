@@ -1,11 +1,11 @@
 {
-  "name": "leaflet-offline-layer",
+  "name": "leaflet-offline",
   "version": "1.0.0",
-  "description": "A custom Leaflet Layer that downloads map tiles.",
-  "main": "src/leaflet-offline-layer.js",
+  "description": "A Leaflet library that downloads map tiles and uses them offline.",
+  "main": "src/leaflet-offline.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/robertomlsoares/leaflet-offline-layer.git"
+    "url": "git+https://github.com/robertomlsoares/leaflet-offline.git"
   },
   "keywords": [
     "leaflet",
@@ -16,9 +16,9 @@
   "author": "Roberto Soares",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/robertomlsoares/leaflet-offline-layer/issues"
+    "url": "https://github.com/robertomlsoares/leaflet-offline/issues"
   },
-  "homepage": "https://github.com/robertomlsoares/leaflet-offline-layer#readme",
+  "homepage": "https://github.com/robertomlsoares/leaflet-offline#readme",
   "dependencies": {
     "leaflet": "^1.1.0"
   },
