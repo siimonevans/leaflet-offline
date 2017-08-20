@@ -1,5 +1,6 @@
 # leaflet-offline
 A Leaflet library that downloads map tiles and uses them offline.
+Check out the demo at https://robertomlsoares.github.io/leaflet-offline/.
 
 ## Inspiration
 This library was heavily inspired and based on the [leaflet.offline](https://github.com/allartk/leaflet.offline) library by Allart Kooiman.
@@ -133,4 +134,4 @@ offlineLayer.addTo(map);
 offlineControl.addTo(map);
 ```
 
-Check the demo for a more complete example.
+For a more complete example, check the demo code inside the ```gh-pages``` branch.
