@@ -69,8 +69,8 @@ Events fired by the ```OfflineControl``` on the ```OfflineLayer```. Assume that 
 | 'offline:below-min-zoom-error' | undefined              | Fired when trying to save below minimum zoom level                              |
 | 'offline:save-start'           | {nTilesToSave: Number} | Fired when the save operation starts but before calling ```tilesDb.saveTiles``` |
 | 'offline:save-end'             | undefined              | Fired when the promise from ```tilesDb.saveTiles``` finishes successfully       |
-| 'offline:save-error'           | {error: Error}         | Fired when the promise from ```tilesDb.saveTiles``` finishes with an error      |
-| 'offline:remove-start'         | undefined              | Fired when the remove operation starts but before calling ```tilesDb.clear```   |
+| 'offline:save-error'           | {error: Error}         | Fired when the promise from ```tilesDb.saveTiles``` finishes with an error      |
+| 'offline:remove-start'         | undefined              | Fired when the remove operation starts but before calling ```tilesDb.clear```   |
 | 'offline:remove-end'           | undefined              | Fired when the promise from ```tilesDb.clear``` finishes successfully           |
 | 'offline:remove-error'         | {error: Error}         | Fired when the promise from ```tilesDb.clear``` finishes with an error          |
 
@@ -78,7 +78,7 @@ Events fired by the ```OfflineControl``` on the ```OfflineLayer```. Assume that 
 
 Creating the database layer object.
 
-```
+```javascript
 var tilesDb = {
     getItem: function (key) {
         // return Promise that has the image Blob/File/Stream.
@@ -96,7 +96,7 @@ var tilesDb = {
 
 Creating the ```OfflineLayer```.
 
-```
+```javascript
 var map = L.map('map-id');
 var offlineLayer = L.tileLayer.offline('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', tilesDb, {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -108,7 +108,8 @@ var offlineLayer = L.tileLayer.offline('http://{s}.tile.openstreetmap.org/{z}/{x
 ```
 
 Creating the ```OfflineControl```.
-```
+
+```javascript
 var offlineControl = L.control.offline(offlineLayer, tilesDb, {
     saveButtonHtml: '<i class="fa fa-download" aria-hidden="true"></i>',
     removeButtonHtml: '<i class="fa fa-trash" aria-hidden="true"></i>',
@@ -129,7 +130,7 @@ var offlineControl = L.control.offline(offlineLayer, tilesDb, {
 
 Adding both of them to the map.
 
-```
+```javascript
 offlineLayer.addTo(map);
 offlineControl.addTo(map);
 ```
