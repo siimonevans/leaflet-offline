@@ -42,7 +42,7 @@ var tilesDb = {
         return localforage.clear();
     },
 
-    _saveTile: function (tileUrlKey, blob) {
+    _saveTile: function (key, blob) {
         return this._removeItem(key).then(function () {
             return localforage.setItem(key, value);
         });
